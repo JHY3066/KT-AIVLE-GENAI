@@ -11,6 +11,7 @@ from typing import Dict, Any, List, Optional
 
 import os
 from student.common.schemas import Day3Plan
+from student.day3.impl.fetchers import fetch_by_web
 
 # 수집 → 정규화 → 랭크 모듈
 from . import fetchers          # NIPA, Bizinfo, 일반 Web 수집

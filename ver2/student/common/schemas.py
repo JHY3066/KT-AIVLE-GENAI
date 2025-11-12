@@ -138,3 +138,15 @@ class GovNoticesModel(BaseModel):
     
 GovNoticeItem = GovNoticeItemModel
 GovNotices = GovNoticesModel
+
+@dataclass
+class DisclosureTicket:
+    id: str
+    agency: str
+    project_title: str
+    period_from: str
+    period_to: str
+    status: str = "draft"   # draft|submitted|waiting|extended|closed|rejected
+    request_text_md: str = ""
+    links: List[str] = field(default_factory=list)  # 접수번호/포털 링크 등
+    due_date: Optional[str] = None

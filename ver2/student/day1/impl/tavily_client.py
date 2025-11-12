@@ -32,6 +32,9 @@ def search_tavily(
         "include_answer": include_answer,
         "include_images": include_images,
         "include_raw_content": include_raw_content,
+        "include_domains": include_domains or [],
+        "exclude_domains": exclude_domains or [],
+        "timeout": timeout,
     }
     if include_domains:
         payload["include_domains"] = include_domains

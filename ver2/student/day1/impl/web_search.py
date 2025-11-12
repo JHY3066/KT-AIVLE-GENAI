@@ -2,6 +2,7 @@
 from typing import List, Dict, Any, Tuple, Callable
 import re, os
 from .tavily_client import search_tavily, extract_url, extract_text
+from student.common.domains import WHITELIST_DAY3
 
 PROFILE_DOMAINS = [
     "wikipedia.org", "en.wikipedia.org", "ko.wikipedia.org",
@@ -53,3 +54,6 @@ def extract_and_summarize_profile(
         f"{joined}\n"
     )
     return summarizer(prompt)
+
+def search_government_only(q: str, api_key: str, top_k=8, timeout=20):
+    return search_tavily(q, api_key, top_k=top_k, timeout=timeout, include_domains=WHITELIST_DAY3)

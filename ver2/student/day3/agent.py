@@ -24,6 +24,8 @@ from student.common.fs_utils import save_markdown
 from student.common.writer import render_day3, render_enveloped
 from student.common.schemas import Day3Plan
 from .impl.pipeline import run_pipeline
+from student.disclosure.command import is_disclosure_command, handle_disclosure_command
+
 
 # ------------------------------------------------------------------------------
 # TODO[DAY3-A-01] 모델 선택:
@@ -130,3 +132,21 @@ if __name__ == "__main__":
     ap.add_argument("--index", default="indices/day3")
     args = ap.parse_args()
     print(json.dumps(main(args.q, args.processed, args.index), ensure_ascii=False, indent=2))
+
+_LAST_DAY3_RESULT: Dict[str, Any] | None = None
+
+def handle_user_text(user_text: str) -> Dict[str, Any]:
+    global _LAST_DAY3_RESULT
+    # 1) 커맨드면: 기존 결과 있으면 바로 사용, 없으면 일단 검색부터
+    if is_disclosure_command(user_text):
+        if not _LAST_DAY3_RESULT:
+            # 기본 쿼리로 당일 인기 키워드 혹은 최근 사용 쿼리를 넣어도 됨
+            agent = Day3Agent(tavily_api_key=None)
+            _LAST_DAY3_RESULT = agent.handle(query="관광 상품 개발 지원", plan=None)
+        return handle_disclosure_command(user_text, _LAST_DAY3_RESULT)
+
+    # 2) 일반 쿼리면: Day3 검색 수행 → 결과 캐시 저장 후 반환
+    agent = Day3Agent(tavily_api_key=None)
+    res = agent.handle(query=user_text, plan=None)
+    _LAST_DAY3_RESULT = res
+    return res

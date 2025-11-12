@@ -179,3 +179,29 @@ def normalize_notice(raw: dict) -> dict:
     extra = extract_fields(base["summary"] + "\n" + body)
     base.update(extra)
     return base
+
+def normalize_item(raw: dict) -> dict:
+    item = {
+        # 기존 필드들…
+        "title": raw.get("title", ""),
+        "url": raw.get("url", ""),
+        "agency": raw.get("agency", ""),
+        "region": raw.get("region"),
+        "category": raw.get("category"),
+        "budget": raw.get("budget"),
+        "deadline": raw.get("deadline"),
+        "selected_vendor": raw.get("selected_vendor", []),
+        "award_amount": raw.get("award_amount"),
+        "decision_date": raw.get("decision_date"),
+        "bid_type": raw.get("bid_type"),
+        "eval_weights": raw.get("eval_weights"),
+        "advisories": raw.get("advisories", []),
+    }
+
+    # ▶ 정보공개청구 권장 배지 부여
+    if not item["eval_weights"] or not item["selected_vendor"]:
+        item["advisories"].append({
+            "type": "disclosure_hint",
+            "text": "정보공개청구 권장(평가표/선정사유 확인 필요)",
+        })
+    return item

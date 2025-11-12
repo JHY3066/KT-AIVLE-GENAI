@@ -20,6 +20,7 @@ from typing import List, Dict, Any, Optional
 import os
 # Day1에서 제작한 Tavily 래퍼를 사용합니다.
 from student.day1.impl.tavily_client import search_tavily 
+from student.common.domains import is_allowed_domain, filter_allowed_urls, WHITELIST_DAY3
 
 # 기본 설정값
 DEFAULT_TOPK = 7
@@ -231,3 +232,29 @@ def guess_agency(url: str) -> str:
     if "kto.or.kr" in host: return "한국관광공사"
     if "seoul.go.kr" in host: return "서울특별시"
     return host
+
+def fetch_by_web(query: str, api_key: str, top_k: int = 10) -> list[dict]:
+    """
+    Day3 웹 보강용 검색. 반드시 화이트리스트 도메인만 허용.
+    """
+    items = []
+    results = search_tavily(
+        query,
+        api_key,
+        top_k=top_k,
+        timeout=20,
+        include_domains=WHITELIST_DAY3,  # ▶ 화이트리스트 강제
+        exclude_domains=None,
+    ) or []
+
+    for r in results:
+        url = r.get("url") or r.get("link") or ""
+        if not is_allowed_domain(url):
+            continue  # ▶ 추가 방어
+        items.append({
+            "title": r.get("title") or "",
+            "url": url,
+            "snippet": r.get("content") or r.get("snippet") or "",
+            "source": "web",
+        })
+    return items
